@@ -1,0 +1,10 @@
+.option-group {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: none;
+}
