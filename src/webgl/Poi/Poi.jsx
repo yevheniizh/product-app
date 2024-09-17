@@ -1,5 +1,5 @@
 import { useRef, forwardRef, useMemo } from "react";
-import { useGLTF, useTexture } from "@react-three/drei";
+import { useGLTF, useKTX2, useTexture } from "@react-three/drei";
 import { useControls } from "leva";
 import { gsap } from "gsap";
 import * as THREE from "three";
@@ -35,15 +35,11 @@ export const Poi = forwardRef((_, ref) => {
   const bitsGeometry = Object.values(nodes).find((object) => object.isMesh && object.name.includes("Bits"))?.geometry;
 
   /** TEXTURES */
-  const textures = useTexture(
-    ["/textures/Body_Pink_D.png", "/textures/Body_Green_D.png", "/textures/Body_Purple_D.png"],
-    (textures) => {
-      textures.forEach((texture) => {
-        texture.flipY = false;
-        texture.colorSpace = THREE.SRGBColorSpace;
-      });
-    }
-  );
+  const textures = useKTX2([
+    "/textures/512/Body_Pink_D.png.ktx2",
+    "/textures/512/Body_Green_D.png.ktx2",
+    "/textures/512/Body_Purple_D.png.ktx2",
+  ]);
   const [bitsOrmTexture, bodyOrmTexture] = useTexture(
     ["/textures/Bits_ORM.png", "/textures/Body_ORM.png"],
     (textures) => {
