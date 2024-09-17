@@ -5,7 +5,6 @@ import { useGesture } from "@use-gesture/react";
 import { useCursor } from "@react-three/drei";
 import { degToRad } from "maath/misc";
 import * as THREE from "three";
-import constants from "../../constants";
 
 export const Draggable = forwardRef(
   ({ children, responsiveness = 5, initialRotationFrom, initialRotationTo, ready, onDragReady }, ref) => {

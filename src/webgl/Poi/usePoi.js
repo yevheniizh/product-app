@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useGLTF, useKTX2, useTexture } from "@react-three/drei";
 import { useControls } from "leva";
 import { gsap } from "gsap";
@@ -44,21 +44,38 @@ export const usePoi = (meshRef) => {
     }
   );
 
-  useGlobalStore.subscribe(
-    (state) => state.controls.skin,
-    (skin) => {
-      const shader = meshRef.current.material.userData.shader;
-      shader.uniforms.uTexture2.value = textures[skin];
-      gsap.to(shader.uniforms.uTransition, {
+  useEffect(() => {
+    const tl = gsap.timeline();
+    const trigger = (material, skin) => {
+      tl.to(material.uniforms.uTransition, {
         value: 1,
         duration: constants.SKIN_TRANSITION_DURATION,
+        onStart: () => {
+          material.uniforms.uTexture2.value = textures[skin];
+        },
         onComplete: () => {
-          shader.uniforms.uTexture1.value = shader.uniforms.uTexture2.value;
-          shader.uniforms.uTransition.value = 0;
+          material.uniforms.uTexture1.value = material.uniforms.uTexture2.value;
+          material.uniforms.uTransition.value = 0;
         },
       });
-    }
-  );
+    };
+
+    const unsubscribe = useGlobalStore.subscribe(
+      (state) => state.controls.skin,
+      (skin) => {
+        const material = meshRef.current.material.userData.shader;
+        if (tl.isActive()) {
+          tl.eventCallback("onComplete", () => trigger(material, skin));
+        } else {
+          trigger(material, skin);
+        }
+      }
+    );
+    return () => {
+      unsubscribe();
+      tl.kill();
+    };
+  }, []);
 
   const bodyMaterial = useMemo(() => {
     const material = new THREE.MeshStandardMaterial({

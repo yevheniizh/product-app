@@ -13,22 +13,36 @@ export const Background = () => {
   const skin = useGlobalStore((state) => state.controls.skin);
 
   useEffect(() => {
+    const tl = gsap.timeline();
+    const trigger = (material, skin) => {
+      tl.to(material.uniforms.uTransition, {
+        value: 1,
+        duration: constants.SKIN_TRANSITION_DURATION,
+        onStart: () => {
+          material.uniforms.uColor2.value = new THREE.Color(constants.SKINS[skin][1]);
+        },
+        onComplete: () => {
+          material.uniforms.uColor1.value = material.uniforms.uColor2.value;
+          material.uniforms.uTransition.value = 0;
+        },
+      });
+    };
+
     const unsubscribe = useGlobalStore.subscribe(
       (state) => state.controls.skin,
       (skin) => {
         const material = ref.current.material;
-        material.uniforms.uColor2.value = new THREE.Color(constants.SKINS[skin][1]);
-        gsap.to(material.uniforms.uTransition, {
-          value: 1,
-          duration: constants.SKIN_TRANSITION_DURATION,
-          onComplete: () => {
-            material.uniforms.uColor1.value = material.uniforms.uColor2.value;
-            material.uniforms.uTransition.value = 0;
-          },
-        });
+        if (tl.isActive()) {
+          tl.eventCallback("onComplete", () => trigger(material, skin));
+        } else {
+          trigger(material, skin);
+        }
       }
     );
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      tl.kill();
+    };
   }, []);
 
   useFrame(({ clock }) => {
