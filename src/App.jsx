@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Stats } from "@react-three/drei";
+import { Stats, View } from "@react-three/drei";
 import { Leva } from "leva";
 
 import constants from "./constants.js";
@@ -31,8 +31,13 @@ export function App() {
         {/* NOTE: Workaround how to hide all the panels without an error */}
         {!isDebugMode && <Leva hidden={!isDebugMode} />}
         {isDebugMode && <Stats />}
-        <Experience />
+
+        <View.Port />
       </Canvas>
+
+      <View style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+        <Experience />
+      </View>
 
       <HtmlContainer>
         <ViewsOptionGroup />
